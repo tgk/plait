@@ -85,7 +85,7 @@ between tests can be expressed in a much shorter manner.
 
 The implementation uses `clojure.walk/macroexpand-all` which means
 that whenever `plait` is used the compilation is taken over by
-`plait`. In tests, this mean that the meta-information about which
+`plait`. In tests, this means that the meta-information about which
 line a failing test is on is lost and e.g. cider can no longer
 navigate directly to a failing assertion but only to the toplevel
 `deftest`.
