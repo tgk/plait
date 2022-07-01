@@ -97,4 +97,6 @@ Krasnianski for pushing the idea further.
 
 ## License
 
+Copyright 2022 Thomas Greve Kristensen.
+
 Released under Apache License, Version 2.0.
