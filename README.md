@@ -11,6 +11,8 @@ be re-evaluated.
 Here is a short example taken from the test file of this project:
 
 ```clj
+(use 'plait.core)
+
 (plait [a 42
         b (inc a)]
   (println b) ;; prints 43
