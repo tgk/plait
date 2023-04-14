@@ -4,4 +4,11 @@
                       {:git/url "https://github.com/cognitect-labs/test-runner.git"
                        :sha "9e35c979860c75555adaff7600070c60004a0f44"}}
          :main-opts ["-m" "cognitect.test-runner"]
-         :exec-fn cognitect.test-runner.api/test}}}
+         :exec-fn cognitect.test-runner.api/test}
+  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.8.1" :git/sha "7d40500"}}
+          :ns-default build}
+  :deploy {:extra-deps {slipset/deps-deploy {:mvn/version "RELEASE"}}
+           :exec-fn deps-deploy.deps-deploy/deploy
+           :exec-args {:installer :remote
+                       :sign-releases? false
+                       :artifact "target/plait-0.1.0.jar"}}}}
