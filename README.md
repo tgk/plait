@@ -1,5 +1,7 @@
 # plait
 
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.tgkristensen/plait.svg)](https://clojars.org/org.clojars.tgkristensen/plait)
+
 `plait` is a small macro that works like a `let` binding but where
 nested `plait`s allows for previously defined bindings to be
 overwritten.
