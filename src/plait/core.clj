@@ -37,6 +37,9 @@
         (vector? x)
         (vec (map (partial plait-impl bindings) x))
 
+        (map? x)
+        (into {} (map (partial plait-impl bindings) x))
+
         (string? x)
         x
 

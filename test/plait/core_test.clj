@@ -23,4 +23,10 @@
             b (inc a)]
       (do
         (plait [b (+ 2 a)]
-          (is (= b 44)))))))
+          (is (= b 44))))))
+  (testing "handles a map"
+    (plait [a 42
+            b (inc a)]
+      (do
+        (plait [b {:foo 1}]
+          (is (= b {:foo 1})))))))
