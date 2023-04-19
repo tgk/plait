@@ -4,15 +4,15 @@
 
 (deftest plait-test
   (plait [a 42
-          b (inc a)]
-    (testing "works like a let"
-      (is (= b 43)))
-    (plait [b (+ 2 a)]
-      (testing "replaces last binding"
-        (is (= b 44))))
-    (plait [a 10]
-      (testing "replaces first binding")
-      (is (= b 11))))
+           b (inc a)]
+     (testing "works like a let"
+       (is (= b 43)))
+     (plait [b (+ 2 a)]
+       (testing "replaces last binding"
+         (is (= b 44))))
+     (plait [a 10]
+       (testing "replaces first binding")
+       (is (= b 11))))
   (testing "does not overwrite _ symbols"
     (plait [a (atom 0)
             _ (swap! a inc)]
