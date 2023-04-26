@@ -16,8 +16,9 @@
 
 (defn merge-bindings
   [base-bindings new-bindings]
-  (let [base-bindings-s (set (map first (partition 2 base-bindings)))
-        new-binding-pairs (partition 2 new-bindings)
+  (let [new-bindings-safe (rename-underscore-bindings new-bindings)
+        base-bindings-s (set (map first (partition 2 base-bindings)))
+        new-binding-pairs (partition 2 new-bindings-safe)
         new-bindings-m (into {} (for [[k v] new-binding-pairs]
                                   [k v]))]
     (vec (apply concat
@@ -31,13 +32,9 @@
   (walk/prewalk
    (fn [x]
      (if (and (seqable? x) (= 'plait (first x)))
-       (let [child-bindings (rename-underscore-bindings (second x))
-             child-body     (drop 2 x)
-             new-bindings   (merge-bindings bindings child-bindings)]
+       (let [new-bindings (merge-bindings bindings (second x))]
          (concat ['let new-bindings]
-                 (map (partial plait-impl new-bindings) child-body)))
-
-
+                 (map (partial plait-impl new-bindings) (drop 2 x))))
        x))
    form))
 
