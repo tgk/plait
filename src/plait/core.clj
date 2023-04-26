@@ -45,6 +45,4 @@
   "Add `let` style bindings that can be redeclared at deeper levels."
   {:style/indent 1}
   [bindings & body]
-  (let [top-level-bindings (rename-underscore-bindings bindings)
-        top-level-form (concat ['plait top-level-bindings] body)]
-    (plait-impl top-level-bindings top-level-form)))
+  (plait-impl [] (concat ['plait bindings] body)))
