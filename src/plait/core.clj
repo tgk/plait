@@ -27,19 +27,57 @@
                          [n (get new-bindings-m n b)]))
                 (remove (comp base-bindings-s first) new-binding-pairs)))))
 
-(defn plait-impl
+(defn plait-impl-walk
   [bindings form]
   (walk/prewalk
    (fn [x]
      (if (and (seqable? x) (= 'plait (first x)))
        (let [new-bindings (merge-bindings bindings (second x))]
          (concat ['let new-bindings]
-                 (map (partial plait-impl new-bindings) (drop 2 x))))
+                 (map (partial plait-impl-walk new-bindings) (drop 2 x))))
        x))
    form))
+
+(defn plait-impl-recur
+  [bindings x]
+  (if (and (seqable? x) (= 'plait (first x)))
+       (let [new-bindings (merge-bindings bindings (second x))]
+         (concat ['let new-bindings]
+                 (map (partial plait-impl-recur new-bindings) (drop 2 x))))
+       x))
 
 (defmacro plait
   "Add `let` style bindings that can be redeclared at deeper levels."
   {:style/indent 1}
   [bindings & body]
-  (plait-impl [] (concat ['plait bindings] body)))
+  ;; This makes CIDER highlight the failing test
+  ;; (plait-impl-recur [] (concat ['plait bindings] body))
+
+  ;; This still highlights the top level form
+  (plait-impl-walk [] (concat ['plait bindings] body))
+  )
+
+(comment
+  (def test-form
+  '(plait [a 42
+           b (inc a)]
+     (plait [a 10]
+       (testing "replaces first binding")
+       (is (= b 12)))))
+
+  (plait-impl-recur [] test-form)
+  ;; => (let
+  ;;     [a 42 b (inc a)]
+  ;;     (let
+  ;;      [a 10 b (inc a)]
+  ;;      (testing "replaces first binding")
+  ;;      (is (= b 12))))
+
+  (plait-impl-walk [] test-form)
+  ;; => (let
+  ;;     [a 42 b (inc a)]
+  ;;     (let
+  ;;      [a 10 b (inc a)]
+  ;;      (testing "replaces first binding")
+  ;;      (is (= b 12))))
+  )
