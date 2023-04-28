@@ -27,38 +27,32 @@
                          [n (get new-bindings-m n b)]))
                 (remove (comp base-bindings-s first) new-binding-pairs)))))
 
-;; todo
-(def metas (atom []))
+(def plait-metas (atom []))
 
-(defn meta-available? [x]
+(defn meta-supported? [x]
   (instance? clojure.lang.IMeta x))
 
-(defn my-prewalk
-  {:added "1.1"}
-  [f form]
-  (prn "prewalk start")
-  (binding [*print-meta* true] (prn form))
-  (when (meta-available? form)
-    (reset! metas (conj @metas (meta form))))
+(defn- store-meta [x]
+  (when (meta-supported? x)
+    (reset! plait-metas (conj @plait-metas (meta x)))))
 
-  (walk/walk
-   (partial my-prewalk f)
-   (fn [x]
-     (let [tmp-result
-           (if (meta-available? x)
-             (let [m      (peek @metas)
-                   result (with-meta x m)]
-               (reset! metas (pop @metas))
-               result)
-             x)]
-       (prn "outer")
-       (binding [*print-meta* true] (prn tmp-result))
-       tmp-result))
-   (f form)))
+(defn- restore-meta [x]
+  (if (meta-supported? x)
+    (let [meta (peek @plait-metas)]
+      (reset! plait-metas (pop @plait-metas))
+      (with-meta x meta))
+    x))
+
+(defn plait-prewalk
+  [f form]
+  (store-meta form)
+  (walk/walk (partial plait-prewalk f)
+             restore-meta
+             (f form)))
 
 (defn plait-impl-walk
   [bindings form]
-  (my-prewalk
+  (plait-prewalk
    (fn [x]
      (if (and (seqable? x) (= 'plait (first x)))
        (let [new-bindings (merge-bindings bindings (second x))]
@@ -83,6 +77,7 @@
   ;; (plait-impl-recur [] (concat ['plait bindings] body))
 
   ;; This still highlights the top level form
+  (reset! plait-metas [])
   (plait-impl-walk [] (concat ['plait bindings] body))
   )
 
