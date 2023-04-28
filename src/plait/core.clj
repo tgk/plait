@@ -27,9 +27,38 @@
                          [n (get new-bindings-m n b)]))
                 (remove (comp base-bindings-s first) new-binding-pairs)))))
 
+;; todo
+(def metas (atom []))
+
+(defn meta-available? [x]
+  (instance? clojure.lang.IMeta x))
+
+(defn my-prewalk
+  {:added "1.1"}
+  [f form]
+  (prn "prewalk start")
+  (binding [*print-meta* true] (prn form))
+  (when (meta-available? form)
+    (reset! metas (conj @metas (meta form))))
+
+  (walk/walk
+   (partial my-prewalk f)
+   (fn [x]
+     (let [tmp-result
+           (if (meta-available? x)
+             (let [m      (peek @metas)
+                   result (with-meta x m)]
+               (reset! metas (pop @metas))
+               result)
+             x)]
+       (prn "outer")
+       (binding [*print-meta* true] (prn tmp-result))
+       tmp-result))
+   (f form)))
+
 (defn plait-impl-walk
   [bindings form]
-  (walk/prewalk
+  (my-prewalk
    (fn [x]
      (if (and (seqable? x) (= 'plait (first x)))
        (let [new-bindings (merge-bindings bindings (second x))]
