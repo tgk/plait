@@ -25,13 +25,13 @@
 
 (defn- store-meta
   [x]
-  (when (meta-supported? x) (reset! plait-metas (conj @plait-metas (meta x)))))
+  (when (meta-supported? x) (swap! plait-metas conj (meta x))))
 
 (defn- restore-meta
   [x]
   (if (meta-supported? x)
     (let [meta (peek @plait-metas)]
-      (reset! plait-metas (pop @plait-metas))
+      (swap! plait-metas pop)
       (with-meta x meta))
     x))
 
