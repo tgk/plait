@@ -1,5 +1,5 @@
 (ns plait.core
-  (:require [clojure.walk :as w]))
+  (:require [clojure.walk :as walk]))
 
 (defn- safe-binding-name [s] (if (= (symbol "_") s) (gensym) s))
 
